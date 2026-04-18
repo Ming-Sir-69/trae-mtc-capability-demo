@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MTC 可交互 3D 销售仪表盘（本地 HTML）</title>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1b33;
+      --text:#e5e7eb;
+      --muted:#93c5fd;
+      --accent:#f59e0b;
+      --border:rgba(59,130,246,.25);
+      --shadow:0 18px 55px rgba(0,0,0,.45);
+    }
+    body{margin:0;background:radial-gradient(1200px 800px at 20% 10%,rgba(59,130,246,.22),transparent 60%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    header{padding:22px 24px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(30,64,175,.18),transparent)}
+    h1{margin:0;font-size:18px;letter-spacing:.2px}
+    p{margin:8px 0 0;color:#cbd5e1;font-size:13px}
+    .wrap{display:grid;grid-template-columns:360px 1fr;gap:16px;padding:16px;max-width:1280px;margin:0 auto}
+    .card{background:linear-gradient(180deg,rgba(15,27,51,.92),rgba(15,27,51,.72));border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow)}
+    .panel{padding:14px}
+    label{display:block;font-size:12px;color:#cbd5e1;margin:10px 0 6px}
+    select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:#0b162c;color:var(--text);outline:none}
+    .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .kpi{padding:12px;border-radius:12px;background:rgba(30,64,175,.18);border:1px solid rgba(59,130,246,.25)}
+    .kpi b{display:block;font-size:18px;color:#fff;margin-top:4px}
+    .kpi span{font-size:11px;color:#cbd5e1}
+    #plot3d,#plot2d{height:420px}
+    .plots{display:grid;grid-template-rows:1fr 1fr;gap:16px;padding:16px}
+    .note{padding:12px 14px;border-top:1px solid var(--border);color:#cbd5e1;font-size:12px}
+    a{color:var(--muted)}
+    @media (max-width: 980px){.wrap{grid-template-columns:1fr}.plots{padding:0}.card{border-radius:12px}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>可交互 3D 销售仪表盘（离线文件）</h1>
+    <p>说明：此 HTML 可直接双击在浏览器打开；交互效果（旋转/缩放/悬浮提示）用于证明“PPT 内的炫酷立体图表可以通过外部可交互文件实现”。</p>
+  </header>
+
+  <div class="wrap">
+    <div class="card panel">
+      <label for="region">区域</label>
+      <select id="region">
+        <option value="华东" selected>华东</option>
+        <option value="华南">华南</option>
+        <option value="华北">华北</option>
+      </select>
+
+      <label for="metric">指标</label>
+      <select id="metric">
+        <option value="revenue" selected>收入</option>
+        <option value="units">销量</option>
+      </select>
+
+      <div class="kpis">
+        <div class="kpi"><span>24个月累计收入</span><b id="kpiTotal">-</b></div>
+        <div class="kpi"><span>最近12个月同比</span><b id="kpiYoY">-</b></div>
+      </div>
+
+      <div class="note">
+        数据：本页面使用内置模拟数据（与 Excel 示例同一结构），用于可视化演示。<br/>
+        若想与 Excel 真正联动：建议用 Power BI / Office Scripts / 外部 ETL，将数据导出为 JSON 再驱动本页面。
+      </div>
+    </div>
+
+    <div class="card plots">
+      <div class="card" style="overflow:hidden"><div id="plot3d"></div></div>
+      <div class="card" style="overflow:hidden"><div id="plot2d"></div></div>
+    </div>
+  </div>
+
+  <script>
+    // 模拟数据：24个月、5产品，用于生成 3D 曲面（月份 x 产品 x 指标）
+    const products = ["Alpha","Beta","Gamma","Delta","Epsilon"];
+    const months = Array.from({length:24}, (_,i)=> i+1);
+
+    function seededRand(seed){
+      let s = seed>>>0;
+      return ()=> (s = (s*1664525 + 1013904223)>>>0) / 2**32;
+    }
+
+    function buildData(region, metric){
+      const r = seededRand((region.charCodeAt(0)+region.charCodeAt(1))*12345 + (metric==="revenue"?7:13));
+      const z = products.map((p,pi)=>{
+        return months.map((m,mi)=>{
+          const season = 1 + 0.25*Math.sin((mi/12)*2*Math.PI);
+          const regionFactor = (region==="华东")?1.15:(region==="华南")?1.0:0.9;
+          const prodFactor = [1.0,0.9,0.85,0.7,0.55][pi];
+          const noise = 0.85 + 0.3*r();
+          const units = Math.round(1800*season*regionFactor*prodFactor*noise);
+          const price = [129,169,199,249,299][pi] * Math.pow(1.05, Math.floor(mi/12));
+          return metric==="revenue" ? Math.round(units*price) : units;
+        });
+      });
+      return z;
+    }
+
+    function calcKPIs(z){
+      const totalsByMonth = months.map((_,mi)=> products.reduce((acc,_,pi)=> acc+z[pi][mi],0));
+      const total = totalsByMonth.reduce((a,b)=>a+b,0);
+      const last12 = totalsByMonth.slice(12).reduce((a,b)=>a+b,0);
+      const prev12 = totalsByMonth.slice(0,12).reduce((a,b)=>a+b,0);
+      const yoy = prev12>0 ? (last12/prev12 - 1) : 0;
+      return {total, yoy, totalsByMonth};
+    }
+
+    function render(){
+      const region = document.getElementById("region").value;
+      const metric = document.getElementById("metric").value;
+
+      const z = buildData(region, metric);
+      const {total, yoy, totalsByMonth} = calcKPIs(z);
+
+      document.getElementById("kpiTotal").textContent =
+        metric==="revenue" ? total.toLocaleString()+" 元" : total.toLocaleString()+" 件";
+      document.getElementById("kpiYoY").textContent = (yoy*100).toFixed(1)+"%";
+
+      const surface = [{
+        type: "surface",
+        x: months,
+        y: products,
+        z: z,
+        colorscale: [
+          [0, "#0ea5e9"],
+          [0.45, "#3b82f6"],
+          [0.75, "#1e40af"],
+          [1, "#f59e0b"]
+        ],
+        hovertemplate: "月份 %{x}<br>产品 %{y}<br>值 %{z:,}<extra></extra>"
+      }];
+
+      const layout3d = {
+        margin:{l:0,r:0,t:32,b:0},
+        paper_bgcolor:"rgba(0,0,0,0)",
+        plot_bgcolor:"rgba(0,0,0,0)",
+        title:{text:"3D 曲面（可旋转/缩放）",font:{color:"#e5e7eb",size:14}},
+        scene:{
+          bgcolor:"rgba(0,0,0,0)",
+          xaxis:{title:"月份",gridcolor:"rgba(59,130,246,.18)",zerolinecolor:"rgba(59,130,246,.18)",color:"#cbd5e1"},
+          yaxis:{title:"产品",gridcolor:"rgba(59,130,246,.18)",zerolinecolor:"rgba(59,130,246,.18)",color:"#cbd5e1"},
+          zaxis:{title:(metric==="revenue"?"收入":"销量"),gridcolor:"rgba(59,130,246,.18)",zerolinecolor:"rgba(59,130,246,.18)",color:"#cbd5e1"},
+        }
+      };
+
+      Plotly.newPlot("plot3d", surface, layout3d, {displaylogo:false,responsive:true});
+
+      const line = [{
+        type:"scatter",
+        mode:"lines+markers",
+        x: months,
+        y: totalsByMonth,
+        line:{color:"#f59e0b",width:3},
+        marker:{size:6,color:"#f59e0b"},
+        hovertemplate:"月份 %{x}<br>合计 %{y:,}<extra></extra>"
+      }];
+
+      const layout2d = {
+        margin:{l:48,r:16,t:32,b:40},
+        paper_bgcolor:"rgba(0,0,0,0)",
+        plot_bgcolor:"rgba(0,0,0,0)",
+        title:{text:"月度合计趋势",font:{color:"#e5e7eb",size:14}},
+        xaxis:{title:"月份",gridcolor:"rgba(59,130,246,.12)",color:"#cbd5e1"},
+        yaxis:{title:(metric==="revenue"?"收入(元)":"销量(件)"),gridcolor:"rgba(59,130,246,.12)",color:"#cbd5e1"},
+      };
+
+      Plotly.newPlot("plot2d", line, layout2d, {displaylogo:false,responsive:true});
+    }
+
+    document.getElementById("region").addEventListener("change", render);
+    document.getElementById("metric").addEventListener("change", render);
+    render();
+  </script>
+</body>
+</html>
+
