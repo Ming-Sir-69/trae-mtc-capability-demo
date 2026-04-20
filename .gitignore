@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Office temp files
+~$*.xlsx
+~$*.pptx
+~$*.docx
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment
+.env
+.env.local
