@@ -1,44 +1,47 @@
-# Trae MTC 能力梳理及演示
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="readme-assets/header-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="readme-assets/header-light.svg">
+  <img alt="Trae MTC 多格式作品展示 · ✦ EricMingle69" src="readme-assets/header-light.svg" width="100%">
+</picture>
 
-一组展示 Trae SOLO 的 MTC（More Than Code）工作方式的文档作品：Excel 复杂模型、PPT 演示稿与可交互 HTML 仪表盘。适合想直接体验多格式产物的读者，也可作为文档工程和协作流程的学习示例。
+<p align="center">
+  <a href="README.md">简体中文</a> · <a href="README.en.md">English</a> · <a href="PERSONAL-NOTICE.md">✦ EricMingle69</a>
+</p>
 
-![封面](作品封面图.png)
+# Trae MTC 多格式作品展示
 
-## 快速体验
+## 项目定位
 
-1. 打开 [MTC_复杂Excel模型.xlsx](MTC_复杂Excel模型.xlsx)，进入 `Analysis` Sheet，通过区域、情景、产品下拉框查看联动。
-2. 打开 [MTC_能力演示.pptx](MTC_能力演示.pptx) 查看演示稿。
-3. 下载仓库后，在浏览器打开 [3D_可交互销售仪表盘.html](interactive/3D_可交互销售仪表盘.html)。保留目录结构，以便相对路径引用素材。
+展示 Trae SOLO MTC（More Than Code）工作方式的 Excel 模型、PPT 演示和交互式 HTML 仪表盘，可直接下载已有作品阅读。
 
-详细操作与 Office for Mac 超链接兼容性说明见 [00_README.md](00_README.md)；实现背景、模型结构与后续方向见 [README_DEV.md](README_DEV.md)。
+## 阅读入口
 
-## 作品渲染
+| 入口 | 内容 |
+| --- | --- |
+| [Excel 模型](MTC_复杂Excel模型.xlsx) | 多表联动与下拉控件 |
+| [能力演示稿](MTC_能力演示.pptx) | 已有 PowerPoint 作品 |
+| [HTML 仪表盘](interactive/3D_可交互销售仪表盘.html) | 可交互 3D 展示入口 |
+| [操作说明](00_README.md) | Excel 位置与 Office for Mac 超链接说明 |
+| [开发说明](README_DEV.md) | 模型结构、实现背景和后续方向 |
+| [作品预览](作品渲染图/) | 各格式的保存预览图 |
 
-| Excel复杂模型 | PPT能力演示 | 3D交互仪表盘 |
-|:---:|:---:|:---:|
-| ![01](作品渲染图/01_Excel复杂模型.P.A.png) | ![02](作品渲染图/02_PPT能力演示.P.A.png) | ![03](作品渲染图/03_3D交互仪表盘.P.A.png) |
+## 从哪里开始
 
-| Excel预览动效 | 综合能力展示 |
-|:---:|:---:|
-| ![04](作品渲染图/04_Excel预览动效.P.A.png) | ![05](作品渲染图/05_综合能力展示.P.A.png) |
+1. 在 Excel 打开工作簿的 `Analysis` Sheet。区域、情景、产品控件分别位于 B3、B4、D3。
+2. 在 PowerPoint 打开演示稿查看已有页面。
+3. 下载仓库并保留目录结构，在浏览器打开 HTML 仪表盘；相对资源位于 `assets/`。
 
-## 内容与工作流
+## 使用边界
 
-- 需求与能力梳理：`project_context/` 记录需求、证据来源与能力边界。
-- Excel：多表联动、质量门禁、下拉控件与说明页。
-- PPT：演示图片、动效/音效与相关产物入口。
-- HTML：交互式 3D 仪表盘；相关素材位于 `assets/`。
+- 这是作品仓库，未提供自动构建脚本或独立 Release。
+- Office 平台和版本影响交互效果，Mac 文件超链接差异见 `00_README.md`。
+- 展示能力属于这些作品，不是 Trae 或其他工具在所有任务与版本中的能力保证。
 
-技术与产物：`Trae SOLO`、`MTC模式`、`Excel`、`PptxGenJS`、`Three.js`、`HTML`。
+## 来源与原有许可
 
-## 状态与限制
+作品使用 Trae SOLO、Excel、PptxGenJS、Three.js 与 HTML 相关工具；这些工具和素材保留各自权利。原仓库没有整体 LICENSE/NOTICE，作品与图像的改编、商用和再分发范围未明确。
 
-这是作品与演示资料仓库，未提供自动构建脚本或独立 Release。下载现有文件即可开始阅读。工作簿和演示稿的交互效果受 Office 版本与平台影响；原说明已记录 Mac 文件超链接差异，请按使用说明排查。
+---
 
-演示中的能力点用于说明这些作品，不代表 Trae、Excel 或其他工具在所有任务与版本中的能力保证。
-
-## 反馈、署名与许可
-
-欢迎通过 Issue 或 Pull Request 提交文件打不开、相对链接失效或说明不清的问题，并注明使用软件、版本及复现步骤。仓库文档由 [Ming-Sir-69](https://github.com/Ming-Sir-69) 维护。
-
-当前未见覆盖整仓库的 LICENSE/NOTICE。作品与素材的再分发、商用和改编范围待确认；本文不新增授权，也不改变第三方素材及工具的权利归属。
+文档维护：**✦ EricMingle69** · [Ming-Sir-69](https://github.com/Ming-Sir-69)  
+[个人标识、许可与权限说明](PERSONAL-NOTICE.md) · 明暗页眉随 GitHub 主题自动切换。
